@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/dustin/go-humanize"
 	"github.com/spf13/cobra"
 	"html/template"
 	"net/http"
@@ -27,6 +28,7 @@ type Save struct {
 	Type        string
 	Timestamp   time.Time
 	SaveTime    string
+	Filesize    string
 }
 
 type Game struct {
@@ -85,18 +87,29 @@ func configureCommand() *cobra.Command {
 func run(cmd *cobra.Command, args []string) error {
 	http.HandleFunc("/", index)
 
+	saveServer := http.FileServer(http.Dir(savePath))
+	http.Handle("/saves/", http.StripPrefix("/saves", saveServer))
+
 	http.ListenAndServe(fmt.Sprintf("%s:%d", ip, port), nil)
 
 	return nil
 }
 
 func index(w http.ResponseWriter, req *http.Request) {
+	if req.URL.Path != "/" {
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "404 Page Not Found")
+		return
+	}
+
+	httpHost := req.Host
+
 	template := template.Must(template.ParseFiles("templates/list.html"))
-	listData := ListData{Games: getGameData(w)}
+	listData := ListData{Games: getGameData(httpHost)}
 	template.Execute(w, listData)
 }
 
-func getGameData(w http.ResponseWriter) []Game {
+func getGameData(httpHost string) []Game {
 	var gameMap = make(map[string]Game)
 
 	saves, _ := filepath.Glob(filepath.Join(savePath, "*.sav"))
@@ -117,21 +130,24 @@ func getGameData(w http.ResponseWriter) []Game {
 		saveType := parts[1]
 		timestamp := stats.ModTime()
 		saveTime := timestamp.Format("Mon, 02 Jan 2006 15:04:05")
+		filesize := humanize.Bytes(uint64(stats.Size()))
 
 		game, found := gameMap[gameName]
 		if !found {
 			game = Game{Name: gameName, Saves: []Save{}}
 		}
 
-		downloadUrl := "foobar"
+		downloadUri := fmt.Sprintf("/saves/%s", fileName)
+		fullUrl := fmt.Sprintf("%s://%s%s", "https", httpHost, downloadUri)
 
 		game.Saves = append(game.Saves, Save{
 			Filename:    fileName,
-			DownloadUrl: downloadUrl,
-			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/?url=%s", downloadUrl),
+			DownloadUrl: downloadUri,
+			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/?url=%s", fullUrl),
 			Type:        saveType,
 			Timestamp:   timestamp,
 			SaveTime:    saveTime,
+			Filesize:    filesize,
 		})
 
 		gameMap[gameName] = game
