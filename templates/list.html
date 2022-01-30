@@ -1,0 +1,88 @@
+<html>
+  <head>
+    <title>Satisfactory Saves</title>
+
+    <style>
+      * {
+        font-family: sans-serif;
+      }
+
+      .container {
+        max-width: 600px;
+        width: 100%;
+        margin: auto;
+      }
+
+      table {
+        border: #ccc solid 1px;
+        margin: 10px;
+        width: 100%;
+      }
+
+      th {
+        text-align: left;
+      }
+
+      td {
+        text-align: left;
+        padding: 5px;
+      }
+
+      .btn {
+        background: #ccc;
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 3px;
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+        width: calc(100% - 20px);
+        display: inline-block;
+        text-align: center;
+        margin-bottom: 5px;
+      }
+
+      .btn:last-child {
+        margin-bottom: 0px;
+      }
+
+      .btn:hover {
+        background: #aaa;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Satisfactory Saves</h1>
+      {{ range .Games }}
+        <h2>{{ .Name }}</h2>
+
+        {{ range .Saves }}
+          <table>
+            <tbody>
+                <tr>
+                  <th>Filename:</th>
+                  <td>{{ .Filename }}</td>
+                </tr>
+                <tr>
+                  <th>Type:</th>
+                  <td>{{ .Type }}</td>
+                </tr>
+                <tr>
+                  <th>Date:</th>
+                  <td>{{ .Timestamp.Format "1st January 1970 00:00:00" }}</td>
+                </tr>
+                <tr>
+                  <th></th>
+                  <td>
+                    <a class="btn" href="{{ .DownloadUrl }}">Download</a>
+                    <a class="btn" href="{{ .ViewUrl }}">View</a>
+                  </td>
+                </tr>
+            </tbody>
+          </table>
+        {{ end }}
+      {{ end }}
+    </div>
+  </body>
+</html>
