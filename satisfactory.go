@@ -26,6 +26,7 @@ type Save struct {
 	ViewUrl     string
 	Type        string
 	Timestamp   time.Time
+	SaveTime    string
 }
 
 type Game struct {
@@ -115,6 +116,7 @@ func getGameData(w http.ResponseWriter) []Game {
 		gameName := parts[0]
 		saveType := parts[1]
 		timestamp := stats.ModTime()
+		saveTime := timestamp.Format("Mon, 02 Jan 2006 15:04:05")
 
 		game, found := gameMap[gameName]
 		if !found {
@@ -129,6 +131,7 @@ func getGameData(w http.ResponseWriter) []Game {
 			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/?url=%s", downloadUrl),
 			Type:        saveType,
 			Timestamp:   timestamp,
+			SaveTime:    saveTime,
 		})
 
 		gameMap[gameName] = game
