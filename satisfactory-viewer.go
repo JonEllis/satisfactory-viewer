@@ -17,9 +17,12 @@ import (
 )
 
 var (
-	ip       string
-	port     uint
-	savePath string
+	ip           string
+	port         uint
+	savePath     string
+	printVersion bool
+
+	version string
 
 	//go:embed templates
 	templates embed.FS
@@ -62,6 +65,10 @@ func configureCommand() *cobra.Command {
 		Use:   "satisfactory [flags] save-directory",
 		Short: "HTTP server to list Satisfactory saves and link to download or view them in satisfactory calculator.",
 		Args: func(cmd *cobra.Command, args []string) error {
+			if printVersion {
+				return nil
+			}
+
 			if len(args) < 1 {
 				return errors.New("The path to your Satisfactory saves directory is required")
 			}
@@ -89,10 +96,21 @@ func configureCommand() *cobra.Command {
 		"",
 		"The ip address to listen on for HTTP requests")
 
+	cmd.Flags().BoolVarP(&printVersion,
+		"version",
+		"v",
+		false,
+		"Print the current version")
+
 	return cmd
 }
 
 func run(cmd *cobra.Command, args []string) error {
+	if printVersion {
+		fmt.Println(version)
+		return nil
+	}
+
 	http.HandleFunc("/", index)
 
 	saveServer := http.FileServer(http.Dir(savePath))
