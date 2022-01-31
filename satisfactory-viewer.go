@@ -1,6 +1,7 @@
 package main
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"github.com/dustin/go-humanize"
@@ -19,6 +20,13 @@ var (
 	ip       string
 	port     uint
 	savePath string
+
+	//go:embed templates
+	templates embed.FS
+
+	pages = map[string]string{
+		"list": "templates/list.html",
+	}
 )
 
 type Save struct {
@@ -102,11 +110,17 @@ func index(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	httpHost := req.Host
+	listPage, err := template.ParseFS(templates, pages["list"])
+	if err != nil {
+		w.WriteHeader(500)
+		fmt.Fprintln(w, "500 Internal Server Error")
+		return
+	}
 
-	template := template.Must(template.ParseFiles("templates/list.html"))
+	httpHost := req.Host
 	listData := ListData{Games: getGameData(httpHost)}
-	template.Execute(w, listData)
+
+	listPage.Execute(w, listData)
 }
 
 func getGameData(httpHost string) []Game {
