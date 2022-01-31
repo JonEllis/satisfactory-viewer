@@ -2,8 +2,8 @@ name: Satisfactory Viewer
 
 on:
   push:
-    branches:
-      - master
+    tags:
+      - v*
 
 jobs:
   build:
@@ -19,3 +19,21 @@ jobs:
 
       - name: Build
         run: make build
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+
+      - name: Upload Binary
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: bin/satisfactory-viewer
