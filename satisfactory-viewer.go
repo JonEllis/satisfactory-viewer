@@ -157,7 +157,7 @@ func getGameData(httpHost string) []Game {
 		game.Saves = append(game.Saves, Save{
 			Filename:    fileName,
 			DownloadUrl: downloadUri,
-			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/?url=%s", fullUrl),
+			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/en/interactive-map?url=%s", fullUrl),
 			Type:        saveType,
 			Timestamp:   timestamp,
 			SaveTime:    saveTime,
