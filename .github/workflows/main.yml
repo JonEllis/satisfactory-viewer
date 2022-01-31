@@ -37,3 +37,4 @@ jobs:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
           asset_path: ./bin/satisfactory-viewer
           asset_name: satisfactory-viewer
+          asset_content_type: application/octet-stream
