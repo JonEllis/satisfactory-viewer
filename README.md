@@ -7,3 +7,12 @@ It is written in Go purely because I fancied learning the language - It'll be fu
 a serious app, and I don't consider my satisfactory games to be confidential.
 
 Having said that, I'm more than willing to improve my craft, so feel free to comment or advise :)
+
+## Extra headers
+
+I have added the required headers to my nginx proxy:
+
+```
+add_header Access-Control-Allow-Headers "Access-Control-Allow-Origin";
+add_header Access-Control-Allow-Origin "https://satisfactory-calculator.com";
+```
