@@ -36,6 +36,7 @@ type Save struct {
 	Filename    string
 	DownloadUrl string
 	ViewUrl     string
+	FullUrl			string
 	Type        string
 	Timestamp   time.Time
 	SaveTime    string
@@ -43,8 +44,10 @@ type Save struct {
 }
 
 type Game struct {
-	Name  string
-	Saves []Save
+	Name  						string
+	Saves 						[]Save
+	LatestDownloadUrl	string
+	LatestViewUrl			string
 }
 
 type ListData struct {
@@ -112,6 +115,7 @@ func run(cmd *cobra.Command, args []string) error {
 	}
 
 	http.HandleFunc("/", index)
+	http.HandleFunc("/latest/", latest)
 
 	saveServer := http.FileServer(http.Dir(savePath))
 	http.Handle("/saves/", http.StripPrefix("/saves", saveServer))
@@ -141,6 +145,30 @@ func index(w http.ResponseWriter, req *http.Request) {
 	listPage.Execute(w, listData)
 }
 
+func latest(w http.ResponseWriter, req *http.Request) {
+	name := strings.TrimPrefix(req.URL.Path, "/latest/")
+	if (name == "") {
+		w.WriteHeader(404)
+		fmt.Fprintln(w, "404 Page Not Found")
+		return
+	}
+
+	games := getGameData(req.Host)
+	for _, game := range games {
+		if game.Name != name {
+			continue
+		}
+
+		w.Header().Set("Location", game.Saves[0].FullUrl)
+		w.WriteHeader(302)
+		return
+	}
+
+	w.WriteHeader(404)
+	fmt.Fprintln(w, "404 Page Not Found")
+	return
+}
+
 func getGameData(httpHost string) []Game {
 	var gameMap = make(map[string]Game)
 
@@ -166,7 +194,15 @@ func getGameData(httpHost string) []Game {
 
 		game, found := gameMap[gameName]
 		if !found {
-			game = Game{Name: gameName, Saves: []Save{}}
+			latestUrl := fmt.Sprintf("%s://%s/latest/%s", "https", httpHost, gameName)
+			latestViewUrl := fmt.Sprintf("https://satisfactory-calculator.com/en/interactive-map?url=%s", latestUrl)
+
+			game = Game{
+				Name:								gameName,
+				LatestDownloadUrl:	latestUrl,
+				LatestViewUrl:     	latestViewUrl,
+				Saves: 							[]Save{},
+			}
 		}
 
 		downloadUri := fmt.Sprintf("/saves/%s", fileName)
@@ -176,6 +212,7 @@ func getGameData(httpHost string) []Game {
 			Filename:    fileName,
 			DownloadUrl: downloadUri,
 			ViewUrl:     fmt.Sprintf("https://satisfactory-calculator.com/en/interactive-map?url=%s", fullUrl),
+			FullUrl:		 fullUrl,
 			Type:        saveType,
 			Timestamp:   timestamp,
 			SaveTime:    saveTime,

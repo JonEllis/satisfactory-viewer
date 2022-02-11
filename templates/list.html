@@ -19,8 +19,19 @@
         width: 100%;
       }
 
+      table.latest {
+        background-color: #ccc;
+      }
+      table.latest .btn {
+        background: #eee;
+      }
+      table.latest .btn:hover {
+        background: #ddd;
+      }
+
       th {
         text-align: left;
+        padding: 5px;
       }
 
       td {
@@ -57,32 +68,48 @@
       {{ range .Games }}
         <h2>{{ .Name }}</h2>
 
+        <table class="latest">
+          <tbody>
+            <tr>
+              <th>
+                Latest
+              </th>
+            </tr>
+            <tr>
+              <td>
+                <a class="btn" href="{{ .LatestDownloadUrl }}">Download</a>
+                <a class="btn" href="{{ .LatestViewUrl }}">View</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
         {{ range .Saves }}
           <table>
             <tbody>
-                <tr>
-                  <th>Filename:</th>
-                  <td>{{ .Filename }}</td>
-                </tr>
-                <tr>
-                  <th>Type:</th>
-                  <td>{{ .Type }}</td>
-                </tr>
-                <tr>
-                  <th>Date:</th>
-                  <td>{{ .SaveTime }}</td>
-                </tr>
-                <tr>
-                  <th>Size:</th>
-                  <td>{{ .Filesize }}</td>
-                </tr>
-                <tr>
-                  <th></th>
-                  <td>
-                    <a class="btn" href="{{ .DownloadUrl }}">Download</a>
-                    <a class="btn" href="{{ .ViewUrl }}">View</a>
-                  </td>
-                </tr>
+              <tr>
+                <th>Filename:</th>
+                <td>{{ .Filename }}</td>
+              </tr>
+              <tr>
+                <th>Type:</th>
+                <td>{{ .Type }}</td>
+              </tr>
+              <tr>
+                <th>Date:</th>
+                <td>{{ .SaveTime }}</td>
+              </tr>
+              <tr>
+                <th>Size:</th>
+                <td>{{ .Filesize }}</td>
+              </tr>
+              <tr>
+                <th></th>
+                <td>
+                  <a class="btn" href="{{ .DownloadUrl }}">Download</a>
+                  <a class="btn" href="{{ .ViewUrl }}">View</a>
+                </td>
+              </tr>
             </tbody>
           </table>
         {{ end }}
