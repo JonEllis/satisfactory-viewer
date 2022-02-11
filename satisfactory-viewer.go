@@ -159,7 +159,7 @@ func latest(w http.ResponseWriter, req *http.Request) {
 			continue
 		}
 
-		w.Header().Set("Location", game.Saves[0].FullUrl)
+		w.Header().Set("Location", game.Saves[0].DownloadUrl)
 		w.WriteHeader(302)
 		return
 	}
